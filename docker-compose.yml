@@ -1,13 +1,55 @@
-version: '3.8'
-
 services:
+  api-gateway:
+    image: api-gateway-image
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - order-service
+    networks:
+      - app-network
+
+  order-service:
+    image: order-service-image
+    container_name: order-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - kafka
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - app-network
+
+  inventory-service:
+    image: inventory-service-image
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - kafka
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - app-network
+
+  payment-service:
+    image: payment-service-image
+    container_name: payment-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - app-network
 
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka
     ports:
       - "9092:9092"
-
     environment:
       KAFKA_KRAFT_BROKER_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -16,4 +58,18 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  kafka-data:
