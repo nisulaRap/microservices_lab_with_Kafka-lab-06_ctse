@@ -65,7 +65,7 @@ POST http://localhost:8080/orders
 ```json
 {
   "orderId": "ORD-1001",
-  "item": "Samsung TV",
+  "item": "Laptop",
   "quantity": 1
 }
 ```
