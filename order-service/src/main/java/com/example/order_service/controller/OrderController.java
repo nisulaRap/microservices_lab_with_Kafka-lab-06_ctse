@@ -20,7 +20,6 @@ public class OrderController {
     public String createOrder(@RequestBody String order) {
 
         kafkaTemplate.send("order-topic", order);
-
         return "Order Created & Event Published";
     }
 }
